@@ -13,7 +13,7 @@ use std::{
     time::Duration,
 };
 
-use sysinfo::{PidExt, ProcessExt, SystemExt};
+use sysinfo::System;
 use winapi::{shared::minwindef::FALSE, um::processthreadsapi::OpenProcess};
 
 use crate::process::{BorrowedProcess, OwnedProcessModule, Process, PROCESS_INJECTION_ACCESS};
@@ -179,16 +179,16 @@ impl OwnedProcess {
             return Err(io::Error::last_os_error());
         }
 
-        Ok(unsafe { OwnedProcess::from_raw_handle(handle) })
+        Ok(unsafe { OwnedProcess::from_raw_handle(handle.cast()) })
     }
 
     /// Returns a list of all currently running processes.
     #[must_use]
     pub fn all() -> Vec<OwnedProcess> {
-        // TODO: avoid using sysinfo for this
+        // TODO: avoid using sysinfo for this <- why?
         // TODO: deduplicate code
-        let mut system = sysinfo::System::new();
-        system.refresh_processes();
+        let mut system = System::new();
+        system.refresh_all();
         system
             .processes()
             .values()
@@ -200,14 +200,14 @@ impl OwnedProcess {
     /// Finds all processes whose name contains the given string.
     #[must_use]
     pub fn find_all_by_name(name: impl AsRef<str>) -> Vec<OwnedProcess> {
-        // TODO: avoid using sysinfo for this
+        // TODO: avoid using sysinfo for this <- why?
         // TODO: deduplicate code
-        let mut system = sysinfo::System::new();
-        system.refresh_processes();
+        let mut system = System::new();
+        system.refresh_all();
         system
             .processes()
             .values()
-            .filter(move |process| process.name().contains(name.as_ref()))
+            .filter(move |process| process.name().to_str().unwrap_or_default().contains(name.as_ref())) // TODO: Hate this tbh, fix it
             .map(|process| process.pid())
             .filter_map(|pid| OwnedProcess::from_pid(pid.as_u32()).ok())
             .collect()
@@ -216,14 +216,14 @@ impl OwnedProcess {
     /// Finds the first process whose name contains the given string.
     #[must_use]
     pub fn find_first_by_name(name: impl AsRef<str>) -> Option<OwnedProcess> {
-        // TODO: avoid using sysinfo for this
+        // TODO: avoid using sysinfo for this <- why?
         // TODO: deduplicate code
-        let mut system = sysinfo::System::new();
-        system.refresh_processes();
+        let mut system = System::new();
+        system.refresh_all();
         system
             .processes()
             .values()
-            .filter(move |process| process.name().contains(name.as_ref()))
+            .filter(move |process| process.name().to_str().unwrap_or_default().contains(name.as_ref())) // TODO: Hate this tbh, fix it
             .map(|process| process.pid())
             .find_map(|pid| OwnedProcess::from_pid(pid.as_u32()).ok())
     }
