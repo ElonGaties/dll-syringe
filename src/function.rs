@@ -149,19 +149,17 @@ macro_rules! impl_fn {
 
     (@impl_all ($($nm:ident : $ty:ident),*)) => {
         // Universal conventions
-        {
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("Rust")     fn($($ty),*) -> Ret);
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("C")        fn($($ty),*) -> Ret);
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("system")   fn($($ty),*) -> Ret);
-        }
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("Rust")     fn($($ty),*) -> Ret);
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("C")        fn($($ty),*) -> Ret);
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("system")   fn($($ty),*) -> Ret);
 
         // x86-specific conventions
         #[cfg(target_arch = "x86")]
-        {
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("cdecl")    fn($($ty),*) -> Ret);
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("stdcall")  fn($($ty),*) -> Ret);
-            impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("fastcall") fn($($ty),*) -> Ret);
-        }
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("cdecl")    fn($($ty),*) -> Ret);
+        #[cfg(target_arch = "x86")]
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("stdcall")  fn($($ty),*) -> Ret);
+        #[cfg(target_arch = "x86")]
+        impl_fn!(@impl_u_and_s ($($nm : $ty),*) ("fastcall") fn($($ty),*) -> Ret);
 
         // x86_64 Windows
         #[cfg(all(target_arch = "x86_64", target_os = "windows"))]
