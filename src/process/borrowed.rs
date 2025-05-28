@@ -225,7 +225,7 @@ impl<'a> BorrowedProcess<'a> {
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
-        Ok(unsafe { OwnedProcess::from_raw_handle(new_handle.as_mut_ptr().cast()) }) // meowtest
+        Ok(unsafe { OwnedProcess::from_raw_handle(new_handle.as_mut_ptr().cast()) })
     }
 
     /// Returns a snapshot of the handles of the modules currently loaded in this process.
