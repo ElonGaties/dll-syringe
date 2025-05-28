@@ -207,7 +207,7 @@ impl OwnedProcess {
         system
             .processes()
             .values()
-            .filter(move |process| process.name().to_str().unwrap_or_default().contains(name.as_ref())) // TODO: Hate this tbh, fix it
+            .filter(move |process| process.name().to_string_lossy().contains(name.as_ref()))
             .map(|process| process.pid())
             .filter_map(|pid| OwnedProcess::from_pid(pid.as_u32()).ok())
             .collect()
@@ -223,7 +223,7 @@ impl OwnedProcess {
         system
             .processes()
             .values()
-            .filter(move |process| process.name().to_str().unwrap_or_default().contains(name.as_ref())) // TODO: Hate this tbh, fix it
+            .filter(move |process| process.name().to_string_lossy().contains(name.as_ref()))
             .map(|process| process.pid())
             .find_map(|pid| OwnedProcess::from_pid(pid.as_u32()).ok())
     }
